@@ -20,12 +20,13 @@ model Admin {
   photo      String?
   position   String
   department String
-
+  createdById  Int?
+  createdBy    Admin?  @relation("AdminCreation", fields: [createdById], references: [id])
+  // Admins created by this admin
+  createdAdmins Admin[] @relation("AdminCreation")
   createdAt  DateTime @default(now())
-
   // Relations
   verifiedOfficials Official[]
-  
 }
 model Official {
   id          Int      @id @default(autoincrement())
