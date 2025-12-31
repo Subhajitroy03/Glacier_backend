@@ -4,6 +4,8 @@ const { ApiError } = require('../utils/ApiError');
 const { ApiSuccess } = require('../utils/ApiSuccess');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+var generator = require('generate-password');
+
 
 const adminRepo = new adminRepository();
 
@@ -11,11 +13,19 @@ async function registerAdmin(req, res, next) {
   try {
     const creatorAdmin = req.user;
   
-    const { email, password, name, position, department, photo } = req.body;
+    const { email, name, position, department, photo } = req.body;
 
-    if (!email || !password || !name || !position || !department) {
+    if (!email || !name || !position || !department) {
       throw new ApiError(400, "Invalid input data");
     }
+    
+    var password = generator.generate({
+      length: 10,
+      numbers: true,
+      symbols:true,
+      lowercase:true,
+      uppercase:true
+    });
     const normalizedEmail = email.toLowerCase();
     const existingAdmin = await adminRepo.findUnique({
       email: normalizedEmail
@@ -100,7 +110,7 @@ async function adminSignOut(req, res, next) {
 
 async function verifyOfficial(req, res, next) {
   try{
-    const officialId = req.body.officialId;
+    const officialId = req.params.officialId;
     const user = req.user;
     const official = await officialRepository.findUnique({id:officialId});
     if(!official){
@@ -120,5 +130,81 @@ async function verifyOfficial(req, res, next) {
     next(error);
   }
 }
+async function getOfficials(req,res,next){
+  try{
+    const officials = await officialRepository.findMany({
+      isVerified:false
+    });
 
-module.exports = { registerAdmin, adminSignIn,adminSignOut,verifyOfficial};
+    res.status(200).json(
+      new ApiSuccess({
+        message:"Officials retrieved successfully",
+        data:officials
+      })
+    );
+  }catch(error){
+    next(error);
+  }
+}
+async function declineOfficial(req,res,next){
+  try{
+    const officialId = req.params.officialId;
+    const official = await officialRepository.findUnique({id:officialId});
+    if(!official){
+      throw new ApiError(404,"Official not found");
+    }
+    if(official.isVerified){
+      throw new ApiError(409,"Official is already verified");
+    }
+    const declinedOfficial = await officialRepository.delete({
+      id:officialId
+    });
+
+    res.status(200).json(
+      new ApiSuccess({
+        message:"Official deleted successfully",
+        data:declinedOfficial
+      })
+    );
+  }catch(error){
+    next(error);
+  }
+}
+async function updatePassword(req, res, next) {
+  try {
+    const adminId = req.user.id;
+    const { current_password, new_password } = req.body;
+
+    if (!current_password || !new_password) {
+      throw new ApiError(400, "Current password and new password are required");
+    }
+
+    const admin = await adminRepository.findUnique({ id: adminId });
+    if (!admin) {
+      throw new ApiError(404, "Admin not found");
+    }
+
+    const isMatch = await bcrypt.compare(current_password, admin.password);
+    if (!isMatch) {
+      throw new ApiError(401, "Current password is incorrect");
+    }
+
+    const hashedPassword = await bcrypt.hash(new_password, 10);
+
+    await adminRepository.update(
+      { id: adminId },
+      { password: hashedPassword }
+    );
+
+    res.status(200).json(
+      new ApiSuccess({
+        message: "Password updated successfully",
+        data: null
+      })
+    );
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { registerAdmin, adminSignIn,adminSignOut,verifyOfficial,getOfficials,declineOfficial,updatePassword};

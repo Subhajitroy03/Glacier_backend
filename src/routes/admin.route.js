@@ -1,0 +1,11 @@
+const adminRouter=require('express').Router();
+const {adminController}=require("../controllers/index");
+const {authenticate,isAdmin}=require("../middlewares");
+adminRouter.post("/register",authenticate,isAdmin,adminController.registerAdmin);
+adminRouter.post("/officials/verify/:officialId",authenticate,isAdmin,adminController.verifyOfficial);
+adminRouter.get("/officials",authenticate,isAdmin,adminController.getOfficials);
+adminRouter.delete("/officials/decline/:officialId",authenticate,isAdmin,adminController.declineOfficial);
+adminRouter.post("/signin",adminController.adminSignIn);
+adminRouter.post("/signout",authenticate,isAdmin,adminController.adminSignOut);
+adminRouter.post("/updatepassword",authenticate,isAdmin,adminController.updatePassword);
+module.exports=adminRouter;
