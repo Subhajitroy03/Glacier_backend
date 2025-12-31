@@ -16,8 +16,8 @@ model Admin {
   id         Int      @id @default(autoincrement())
   name       String
   email      String   @unique
-  password   String
-  photo      String?
+  password   String? @default("abcde@12345")
+  photo      String? 
   position   String
   department String
   createdById  Int?
@@ -54,7 +54,6 @@ model Official {
 
 model LakeReport {
   id               Int      @id @default(autoincrement())
-
   // Lake info
   lakeName         String
   latitude         Float
@@ -67,7 +66,10 @@ model LakeReport {
   uploadedAt       DateTime @default(now())
 
   // Observation
-  imageUrl         String
+  subhajit Float @default(0.0)
+  sukalpo Float @default(0.0)
+  sukrit Float @default(0.0)
+  palit Float @default(0.0)
   observationDate  DateTime @default(now())
 
   // AI result
