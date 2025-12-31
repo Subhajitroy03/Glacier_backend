@@ -1,11 +1,19 @@
 const { adminRepository } = require('../repository');
 const {officialRepository} = require('../repository');
-const { ApiError } = require('../utils/ApiError');
-const { ApiSuccess } = require('../utils/ApiSuccess');
+const { ApiError } = require('../utils');
+const { ApiSuccess } = require('../utils');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 var generator = require('generate-password');
+const { sendMail } = require("../utils");
 
+async function mail(to,subject,text) {
+  await sendMail({
+    to: to,
+    subject: subject,
+    text: text,
+  });
+}
 
 const adminRepo = new adminRepository();
 
@@ -46,7 +54,15 @@ async function registerAdmin(req, res, next) {
       createdById: creatorAdmin.id
     });
     delete newAdmin.password; //jate admin password response a na jay ..onek kichu bhabte hoy bhai
-
+    try{
+      mail(
+        email,
+        "You have been succesfully registered as ADMIN",
+        `Please login with you email and your password is ${password} , Don't forget to change it after login `
+      )
+    }catch(error){
+      throw new ApiError(400,"Error in sending mail: "+error.message);
+    }
     res.status(201).json(
       new ApiSuccess({
         message: "Admin registered successfully",
@@ -120,6 +136,15 @@ async function verifyOfficial(req, res, next) {
       throw new ApiError(409,"Official is already verified");
     }
     const verifiedOfficial = await officialRepository.update({id:officialId},{isVerified:true, verifiedById:user.id});
+    try{
+      mail(
+        official.email,
+        "You have been succesfully verified as OFFICIAL",
+        `Now you can login and perform your task `
+      )
+    }catch(error){
+      throw new ApiError(400,"Error in sending mail: "+error.message);
+    }
     res.status(200).json(
       new ApiSuccess({
         message:"Official verified successfully",
@@ -159,7 +184,15 @@ async function declineOfficial(req,res,next){
     const declinedOfficial = await officialRepository.delete({
       id:officialId
     });
-
+    try{
+      mail(
+        official.email,
+        "Sorry your application as OFFICIAL has been rejected",
+        `PLease gm or send us request again or contact us at +91 696969696 if you think it is wrong`
+      )
+    }catch(error){
+      throw new ApiError(400,"Error in sending mail: "+error.message);
+    }
     res.status(200).json(
       new ApiSuccess({
         message:"Official deleted successfully",

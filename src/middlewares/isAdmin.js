@@ -1,4 +1,4 @@
-const { ApiError } = require("../utils/ApiError");
+const { ApiError } = require("../utils");
 
 function isAdmin(req, res, next) {
   // At this point, authenticate middleware MUST have run

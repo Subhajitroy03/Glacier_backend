@@ -1,8 +1,13 @@
-var generator = require('generate-password');
-var password = generator.generate({
-      length: 20,
-      numbers: true,
-      lowercase:true,
-      uppercase:true
-    });
-console.log(password)
+const { sendMail } = require("./src/utils/mailer");
+
+async function main() {
+  await sendMail({
+    to: "subhajit.roy.23@aot.edu.in",
+    subject: "Happy New Year",
+    text: "Hi Subhajit, Happy New Year 🎉",
+  });
+
+  console.log("Email sent");
+}
+
+main().catch(console.error);
