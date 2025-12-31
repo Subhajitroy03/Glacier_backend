@@ -1,11 +1,15 @@
 const adminRouter=require('express').Router();
-const {adminController}=require("../controllers/index");
-const {authenticate,isAdmin}=require("../middlewares");
-adminRouter.post("/register",authenticate,isAdmin,adminController.registerAdmin);
-adminRouter.post("/officials/verify/:officialId",authenticate,isAdmin,adminController.verifyOfficial);
-adminRouter.get("/officials",authenticate,isAdmin,adminController.getOfficials);
-adminRouter.delete("/officials/decline/:officialId",authenticate,isAdmin,adminController.declineOfficial);
-adminRouter.post("/signin",adminController.adminSignIn);
-adminRouter.post("/signout",authenticate,isAdmin,adminController.adminSignOut);
-adminRouter.post("/updatepassword",authenticate,isAdmin,adminController.updatePassword);
+const {registerAdmin, adminSignIn,adminSignOut,verifyOfficial,getOfficials,declineOfficial,updatePassword}=require("../controllers");
+const middlewares = require("../middlewares");
+const authenticate = middlewares.authenticate;
+const isAdmin = middlewares.isAdmin;
+const upload = middlewares.upload;
+
+adminRouter.post("/register",upload.single("photo"),registerAdmin);
+adminRouter.post("/officials/verify/:officialId",authenticate,isAdmin,verifyOfficial);
+adminRouter.get("/officials",authenticate,isAdmin,getOfficials);
+adminRouter.delete("/officials/decline/:officialId",authenticate,isAdmin,declineOfficial);
+adminRouter.post("/signin",adminSignIn);
+adminRouter.post("/signout",authenticate,isAdmin,adminSignOut);
+adminRouter.post("/updatepassword",authenticate,isAdmin,updatePassword);
 module.exports=adminRouter;

@@ -1,6 +1,8 @@
-class BaseRepository {
+class baseRepository {
   constructor(model) {
     this.model = model;
+    console.log("Injected model:", Object.keys(model || {}));
+
   }
 
   create(data) {
@@ -35,3 +37,4 @@ class BaseRepository {
     return this.model.deleteMany({ where });
   }
 }
+module.exports=baseRepository

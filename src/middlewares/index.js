@@ -1,4 +1,6 @@
-const {errorHandler}=require("./errorHandler");
-const {authenticate}=require("./auth");
-const {isAdmin}=require("./isAdmin");
-module.export={errorHandler,authenticate,isAdmin};
+module.exports = {
+  authenticate: require("./auth"),
+  isAdmin: require("./isAdmin"),
+  upload: require("./multer").upload,
+  errorHandler: require("./errorHandler").errorHandler
+};

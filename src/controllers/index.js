@@ -1,2 +1,2 @@
-const adminController=require("./admin.controller");
-module.exports={adminController};
+const {registerAdmin, adminSignIn,adminSignOut,verifyOfficial,getOfficials,declineOfficial,updatePassword}=require("./admin.controller");
+module.exports={registerAdmin, adminSignIn,adminSignOut,verifyOfficial,getOfficials,declineOfficial,updatePassword};

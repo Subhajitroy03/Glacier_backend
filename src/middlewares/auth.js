@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { ApiError } = require("../utils");
 
-function authenticate(req, res, next) {
+module.exports=function authenticate(req, res, next) {
   const token =
     req.cookies?.authToken ||
     req.headers.authorization?.split(" ")[1];
@@ -22,4 +22,4 @@ function authenticate(req, res, next) {
   }
 }
 
-module.exports = authenticate;
+

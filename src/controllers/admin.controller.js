@@ -1,4 +1,4 @@
-const { adminRepository } = require('../repository');
+const adminRepository = require('../repository/admin');
 const {officialRepository} = require('../repository');
 const { ApiError } = require('../utils');
 const { ApiSuccess } = require('../utils');
@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 var generator = require('generate-password');
 const { sendMail } = require("../utils");
+const { uploadOnCloudinary } = require("../utils");
 
 async function mail(to,subject,text) {
   await sendMail({
@@ -21,12 +22,25 @@ async function registerAdmin(req, res, next) {
   try {
     const creatorAdmin = req.user;
   
-    const { email, name, position, department, photo } = req.body;
+    const { email, name, position, department} = req.body;
 
     if (!email || !name || !position || !department) {
       throw new ApiError(400, "Invalid input data");
     }
-    
+    /// cloudinary work
+    let cloudinaryResult;
+    try {
+      if (!req.file) {
+        throw new ApiError(400, "Image file is required");
+      }
+      // multer saved the file locally
+      const localPath = req.file.path;
+      // upload to cloudinary
+      cloudinaryResult = await uploadOnCloudinary(localPath);
+    }catch(err){
+      throw new ApiError(400,err.message);
+    }
+    ////password work
     var password = generator.generate({
       length: 10,
       numbers: true,
@@ -50,8 +64,8 @@ async function registerAdmin(req, res, next) {
       name,
       position,
       department,
-      photo,
-      createdById: creatorAdmin.id
+      photo: cloudinaryResult.url ?? cloudinaryResult,
+      //createdById: creatorAdmin.id
     });
     delete newAdmin.password; //jate admin password response a na jay ..onek kichu bhabte hoy bhai
     try{
@@ -61,7 +75,7 @@ async function registerAdmin(req, res, next) {
         `Please login with you email and your password is ${password} , Don't forget to change it after login `
       )
     }catch(error){
-      throw new ApiError(400,"Error in sending mail: "+error.message);
+      console.log("Error in sending mail: "+error.message);
     }
     res.status(201).json(
       new ApiSuccess({
@@ -143,7 +157,7 @@ async function verifyOfficial(req, res, next) {
         `Now you can login and perform your task `
       )
     }catch(error){
-      throw new ApiError(400,"Error in sending mail: "+error.message);
+      console.log("Error in sending mail: "+error.message);
     }
     res.status(200).json(
       new ApiSuccess({
@@ -191,7 +205,7 @@ async function declineOfficial(req,res,next){
         `PLease gm or send us request again or contact us at +91 696969696 if you think it is wrong`
       )
     }catch(error){
-      throw new ApiError(400,"Error in sending mail: "+error.message);
+      console.log("Error in sending mail: "+error.message);
     }
     res.status(200).json(
       new ApiSuccess({
@@ -212,7 +226,7 @@ async function updatePassword(req, res, next) {
       throw new ApiError(400, "Current password and new password are required");
     }
 
-    const admin = await adminRepository.findUnique({ id: adminId });
+    const admin = await adminRepo.findUnique({ id: adminId });
     if (!admin) {
       throw new ApiError(404, "Admin not found");
     }
@@ -224,7 +238,7 @@ async function updatePassword(req, res, next) {
 
     const hashedPassword = await bcrypt.hash(new_password, 10);
 
-    await adminRepository.update(
+    await adminRepo.update(
       { id: adminId },
       { password: hashedPassword }
     );

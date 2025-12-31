@@ -7,12 +7,11 @@
 generator client {
   provider = "prisma-client-js"
 }
-
 datasource db {
   provider = "mysql"
-}
 
-model Admin {
+}
+model admin {
   id         Int      @id @default(autoincrement())
   name       String
   email      String   @unique
@@ -21,14 +20,14 @@ model Admin {
   position   String
   department String
   createdById  Int?
-  createdBy    Admin?  @relation("AdminCreation", fields: [createdById], references: [id])
+  createdBy    admin?  @relation("AdminCreation", fields: [createdById], references: [id])
   // Admins created by this admin
-  createdAdmins Admin[] @relation("AdminCreation")
+  createdAdmins admin[] @relation("AdminCreation")
   createdAt  DateTime @default(now())
   // Relations
-  verifiedOfficials Official[]
+  verifiedOfficials official[]
 }
-model Official {
+model official {
   id          Int      @id @default(autoincrement())
   name        String
   email       String   @unique
@@ -41,18 +40,18 @@ model Official {
 
   // Who verified this official
   verifiedById Int?
-  verifiedBy   Admin?  @relation(fields: [verifiedById], references: [id])
+  verifiedBy   admin?  @relation(fields: [verifiedById], references: [id])
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // Relations
-  uploadedReports LakeReport[]
-  verifiedReports  LakeReport[] @relation("VerifiedReports")
+  uploadedReports lakereport[]
+  verifiedReports  lakereport[] @relation("VerifiedReports")
 }
 
 
-model LakeReport {
+model lakereport {
   id               Int      @id @default(autoincrement())
   // Lake info
   lakeName         String
@@ -62,7 +61,7 @@ model LakeReport {
 
   // Uploaded by official
   uploadedById     Int
-  uploadedBy       Official @relation(fields: [uploadedById], references: [id])
+  uploadedBy       official @relation(fields: [uploadedById], references: [id])
   uploadedAt       DateTime @default(now())
 
   // Observation
@@ -80,7 +79,7 @@ model LakeReport {
   // Verification
   verificationStatus VerificationStatus @default(VERIFIED)
   verifiedById     Int?
-  verifiedBy       Official? @relation("VerifiedReports", fields: [verifiedById], references: [id])
+  verifiedBy       official? @relation("VerifiedReports", fields: [verifiedById], references: [id])
   verifiedAt       DateTime?
 
   createdAt        DateTime @default(now())

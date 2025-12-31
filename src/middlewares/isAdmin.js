@@ -1,6 +1,6 @@
 const { ApiError } = require("../utils");
 
-function isAdmin(req, res, next) {
+module.exports=function isAdmin(req, res, next) {
   // At this point, authenticate middleware MUST have run
   // So req.user must exist
   if (!req.user) {
@@ -14,4 +14,4 @@ function isAdmin(req, res, next) {
   next();
 }
 
-module.exports = isAdmin;
+
