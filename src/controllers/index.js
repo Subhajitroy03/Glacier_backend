@@ -18,7 +18,7 @@ const {
     getOfficialProfile,
     
 }=require("./official.controller")
-const {getAllLakeData}=require("./lakeData.controller");
+const {getAllLakeData,getLakeDetails}=require("./lakeData.controller");
 module.exports={registerAdmin,
     adminSignIn,
     adminSignOut,
@@ -35,5 +35,6 @@ module.exports={registerAdmin,
     getPendingHighRiskReports,
     rejectData,
     getOfficialProfile,
-    getAllLakeData
+    getAllLakeData,
+    getLakeDetails
 };

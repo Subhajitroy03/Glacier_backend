@@ -5,7 +5,8 @@ const {
     getPendingHighRiskReports,
     verifyData,
     rejectData,
-    getAllLakeData
+    getAllLakeData,
+    getLakeDetails
 } = require("../controllers");
 
 const middlewares = require("../middlewares");
@@ -13,6 +14,7 @@ const authenticate = middlewares.authenticate;
 const isOfficial = middlewares.isOfficial;
 
 lakeRouter.get("/",getAllLakeData);
+lakeRouter.get("/details/:lakeId", getLakeDetails);
 lakeRouter.post("/uploaddata",authenticate,isOfficial,uploadData);
 lakeRouter.get(
   "/pending/high-risk",
